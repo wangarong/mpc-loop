@@ -36,13 +36,13 @@ EXIT /B
 REM pre-build checks
 IF "%VS100COMNTOOLS%" == "" GOTO MissingVar
 IF "%MINGW32%" == ""        GOTO MissingVar
-IF "%MINGW64%" == ""        GOTO MissingVar
 
 REM Detect if we are running on 64bit WIN and use Wow6432Node
 IF "%PROGRAMFILES(x86)%zzz"=="zzz" (
   SET "U_=HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 ) ELSE (
   SET "U_=HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+  IF "%MINGW64%" == "" GOTO MissingVar
 )
 
 FOR /F "delims=" %%a IN (
@@ -58,7 +58,7 @@ TITLE Compiling MPC-HC [ERROR]
 ECHO Not all build dependencies found. To build MPC-HC you need:
 ECHO * Visual Studio 2010 (SP1) installed
 ECHO * MinGW 32bit with MSYS pointed to in MINGW32 environment variable
-ECHO * MinGW 64bit with MSYS pointed to in MINGW64 environment variable
+ECHO * MinGW 64bit with MSYS pointed to in MINGW64 environment variable (on 64-bit)
 ECHO. & ECHO.
 ECHO Press any key to exit...
 PAUSE >NUL
@@ -77,6 +77,7 @@ IF /I "%2" == "x64" GOTO build_x64
 GOTO call_vcvarsall
 
 :build_x64
+IF "%MINGW64%" == "" GOTO MissingVar
 IF "%PROGRAMFILES(x86)%zzz"=="zzz" (
   SET build_type=x86_amd64
 ) ELSE (
